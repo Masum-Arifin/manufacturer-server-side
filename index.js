@@ -47,17 +47,7 @@ async function run() {
     const reviewCollection = client.db("waltonpc").collection("review");
     console.log("db connected");
 
-    const verifyAdmin = async (req, res, next) => {
-      const requester = req.decoded.email;
-      const requesterAccount = await userCollection.findOne({
-        email: requester,
-      });
-      if (requesterAccount.role === "admin") {
-        next();
-      } else {
-        res.status(403).send({ message: "forbidden" });
-      }
-    };
+    
 
     // home server title
     app.get("/", (req, res) => {
