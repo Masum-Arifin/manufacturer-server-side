@@ -70,17 +70,14 @@ async function run() {
       res.send(users);
     });
     // admin
-    
-    // user admin api
-    app.put("/users/admin/:email", async (req, res) => {
+    app.get("/admin/:email", async (req, res) => {
       const email = req.params.email;
-      const filter = { email: email };
-      const updateDoc = {
-        $set: { role: "admin" },
-      };
-      const result = await userCollection.updateOne(filter, updateDoc);
-      res.send(result);
+      const user = await userCollection.findOne({ email: email });
+      const isAdmin = user.role === "admin";
+      res.send({ admin: isAdmin });
     });
+    // user admin api
+   
 
     // Review Post api
     app.post("/review", async (req, res) => {
