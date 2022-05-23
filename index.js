@@ -60,13 +60,12 @@ async function run() {
     };
 
     // home server title
-    
+    app.get("/", (req, res) => {
+      res.send("pc doctor Running Successfully.");
+    });
 
     // user get
-    app.get("/users", async (req, res) => {
-      const users = await userCollection.find({}).toArray();
-      res.send(users);
-    });
+   
     // admin
     app.get("/admin/:email", async (req, res) => {
       const email = req.params.email;
