@@ -77,14 +77,18 @@ async function run() {
       res.send({ admin: isAdmin });
     });
     // user admin api
-   
-
-    // Review Post api
-    app.post("/review", async (req, res) => {
-      const newProducts = req.body;
-      const result = await reviewCollection.insertOne(newProducts);
+    app.put("/users/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const updateDoc = {
+        $set: { role: "admin" },
+      };
+      const result = await userCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
+
+    // Review Post api
+    
     // review get and load all data by reviews
     app.get("/review", async (req, res) => {
       const review = await reviewCollection.find({}).toArray();
