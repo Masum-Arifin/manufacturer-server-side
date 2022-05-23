@@ -65,14 +65,12 @@ async function run() {
     });
 
     // user get
-   
-    // admin
-    app.get("/admin/:email", async (req, res) => {
-      const email = req.params.email;
-      const user = await userCollection.findOne({ email: email });
-      const isAdmin = user.role === "admin";
-      res.send({ admin: isAdmin });
+    app.get("/users", async (req, res) => {
+      const users = await userCollection.find({}).toArray();
+      res.send(users);
     });
+    // admin
+    
     // user admin api
     app.put("/users/admin/:email", async (req, res) => {
       const email = req.params.email;
