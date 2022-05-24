@@ -94,7 +94,10 @@ async function run() {
       res.send(result);
     });
     // review get and load all data by reviews
-    
+    app.get("/review", async (req, res) => {
+      const review = await reviewCollection.find({}).toArray();
+      res.send(review);
+    });
 
     // get parts data
     app.get("/parts", async (req, res) => {
