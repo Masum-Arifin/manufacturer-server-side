@@ -112,14 +112,13 @@ async function run() {
       res.send(result);
     });
     //parts collection post api
-   
-    // delete a product
-    app.delete("/parts/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const result = await partsCollection.deleteOne(query);
+    app.post("/parts", async (req, res) => {
+      const products = req.body;
+      const result = await partsCollection.insertOne(products);
       res.send(result);
     });
+    // delete a product
+    
 
     //order collection post api
     // app.post('/orders', async (req, res) => {
