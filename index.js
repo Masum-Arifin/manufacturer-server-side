@@ -88,12 +88,13 @@ async function run() {
     });
 
     // Review Post api
-    
-    // review get and load all data by reviews
-    app.get("/review", async (req, res) => {
-      const review = await reviewCollection.find({}).toArray();
-      res.send(review);
+    app.post("/review", async (req, res) => {
+      const newProducts = req.body;
+      const result = await reviewCollection.insertOne(newProducts);
+      res.send(result);
     });
+    // review get and load all data by reviews
+    
 
     // get parts data
     app.get("/parts", async (req, res) => {
