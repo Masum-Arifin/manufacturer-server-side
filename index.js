@@ -60,9 +60,9 @@ async function run() {
     };
 
     // home server title
-    // app.get("/", (req, res) => {
-    //   res.send("pc doctor Running Successfully.");
-    // });
+    app.get("/", (req, res) => {
+      res.send("pc doctor Running Successfully.");
+    });
 
     // user get
     app.get("/users", async (req, res) => {
