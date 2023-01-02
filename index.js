@@ -1,9 +1,9 @@
 const express = require("express");
 const cors = require("cors");
+const stripe = require("stripe")(process.env.STRIPE_SECRET);
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
-const ObjectId = require("mongodb").ObjectId;
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 app = express();
 port = process.env.PORT || 5000;
@@ -13,15 +13,23 @@ app.use(cors());
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASS}@pcdoctor.wwovwaa.mongodb.net/?retryWrites=true&w=majority`;
-
-// const uri = `mongodb+srv://${[process.env.USER_NAME]}:${
-//   process.env.USER_PASS
-// }@walton-pc.ppiop.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
+
+// const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASS}@pcdoctor.wwovwaa.mongodb.net/?retryWrites=true&w=majority`;
+// console.log(uri);
+
+// // const uri = `mongodb+srv://${[process.env.USER_NAME]}:${
+// //   process.env.USER_PASS
+// // }@walton-pc.ppiop.mongodb.net/?retryWrites=true&w=majority`;
+// const client = new MongoClient(uri, {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+//   serverApi: ServerApiVersion.v1,
+// });
 
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -45,6 +53,7 @@ async function run() {
     const ordersCollection = client.db("waltonpc").collection("orders");
     const userCollection = client.db("waltonpc").collection("users");
     const reviewCollection = client.db("waltonpc").collection("review");
+    const paymentsCollection = client.db("waltonpc").collection("payments");
     console.log("db connected");
 
     const verifyAdmin = async (req, res, next) => {
@@ -62,6 +71,53 @@ async function run() {
     // home server title
     app.get("/", (req, res) => {
       res.send("pc doctor Running Successfully.");
+    });
+
+    // CREATE PAYMENT
+    app.post("/create-payment", async (req, res) => {
+      const service = req.body;
+      const price = service?.totalPrice;
+      const amount = price * 100;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ["card"],
+      });
+      res.send({ clientSecret: paymentIntent.client_secret });
+    });
+
+    // GET ALL PAYMENTS BASED ON STATUS ID
+    app.put("/status/:id",  async (req, res) => {
+      const id = req.params.id;
+      const payment = req.body;
+      const filter = { _id: ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          orderStatus: payment.orderStatus,
+          paymentStatus: payment.paymentStatus,
+        },
+      };
+      const updatedStatus = await ordersCollection.updateOne(
+        filter,
+        updatedDoc
+      );
+      res.send(updatedStatus);
+    });
+
+    // SET PAID STATUS AND TRANSACTION ID TO PAID PRODUCTS
+    app.put("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      const payment = req.body;
+      const filter = { _id: ObjectId(id) };
+      const doc = {
+        $set: {
+          status: "Pending",
+          transactionId: payment.transactionId,
+        },
+      };
+      const result = await paymentsCollection.insertOne(payment);
+      const updatedOrder = await ordersCollection.updateOne(filter, doc);
+      res.send(updatedOrder);
     });
 
     // user get
@@ -188,3 +244,6 @@ run().catch(console.dir);
 app.listen(port, () => {
   console.log("walton server Running");
 });
+
+module.exports = app;
+
