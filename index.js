@@ -19,18 +19,6 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
-// const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASS}@pcdoctor.wwovwaa.mongodb.net/?retryWrites=true&w=majority`;
-// console.log(uri);
-
-// // const uri = `mongodb+srv://${[process.env.USER_NAME]}:${
-// //   process.env.USER_PASS
-// // }@walton-pc.ppiop.mongodb.net/?retryWrites=true&w=majority`;
-// const client = new MongoClient(uri, {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-//   serverApi: ServerApiVersion.v1,
-// });
-
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -48,7 +36,7 @@ function verifyJWT(req, res, next) {
 
 async function run() {
   try {
-    await client.connect();
+     client.connect();
     const partsCollection = client.db("waltonpc").collection("parts");
     const ordersCollection = client.db("waltonpc").collection("orders");
     const userCollection = client.db("waltonpc").collection("users");
@@ -181,12 +169,6 @@ async function run() {
       res.send(result);
     });
 
-    //order collection post api
-    // app.post('/orders', async (req, res) => {
-    //   const orders = req.body;
-    //   const result = await ordersCollection.insertOne(orders);
-    //   res.send(result);
-    // })
     // delete a order
     app.delete("/orders/:id", async (req, res) => {
       const id = req.params.id;
